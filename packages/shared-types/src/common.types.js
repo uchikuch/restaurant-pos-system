@@ -1,8 +1,6 @@
 "use strict";
-// packages/shared-types/src/common.types.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PaymentStatus = exports.OrderStatus = exports.UserRole = void 0;
-// Updated enums with more comprehensive options
 var UserRole;
 (function (UserRole) {
     UserRole["CUSTOMER"] = "customer";
@@ -28,3 +26,4 @@ var PaymentStatus;
     PaymentStatus["REFUNDED"] = "refunded";
     PaymentStatus["PARTIALLY_REFUNDED"] = "partially_refunded";
 })(PaymentStatus || (exports.PaymentStatus = PaymentStatus = {}));
+//# sourceMappingURL=common.types.js.map

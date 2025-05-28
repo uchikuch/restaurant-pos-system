@@ -1,12 +1,42 @@
 {
   "name": "restaurant-pos-system",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
+  "description": "Restaurant POS System - Monorepo with Next.js frontend apps and NestJS API",
+  "private": true,
   "author": "",
   "license": "ISC",
-  "description": ""
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+ "scripts": {
+    "dev": "concurrently \"pnpm:dev:*\" --kill-others-on-fail --prefix-colors cyan,magenta,yellow,green",
+    "dev:customer": "pnpm --filter customer-web dev",
+    "dev:kitchen": "pnpm --filter kitchen-dashboard dev", 
+    "dev:admin": "pnpm --filter admin-panel dev",
+    "dev:api": "pnpm --filter api start:direct",
+    "build": "pnpm --filter=\"{packages/*}\" build && pnpm --filter=\"{apps/*}\" build",
+    "build:customer": "pnpm --filter customer-web build",
+    "build:kitchen": "pnpm --filter kitchen-dashboard build",
+    "build:admin": "pnpm --filter admin-panel build", 
+    "build:api": "pnpm --filter api build",
+    "build:types": "pnpm --filter @restaurant-pos/shared-types build",
+    "start": "concurrently \"pnpm:start:*\" --kill-others-on-fail",
+    "start:customer": "pnpm --filter customer-web start",
+    "start:kitchen": "pnpm --filter kitchen-dashboard start",
+    "start:admin": "pnpm --filter admin-panel start",
+    "start:api": "pnpm --filter api start:direct"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^22.10.7"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
 }
