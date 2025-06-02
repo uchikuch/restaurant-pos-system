@@ -7,6 +7,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { CategoriesModule } from './categories/categories.module';
+import { MenuItemsModule } from './menu-items/menu-items.module';  // ADD THIS
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
@@ -32,6 +34,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     // Authentication and user management modules
     AuthModule,
     UsersModule,
+
+    // Menu management modules
+    CategoriesModule,
+    MenuItemsModule,  // ADD THIS
   ],
   controllers: [AppController],
   providers: [
