@@ -1,119 +1,138 @@
+// apps/api/src/users/schemas/user.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { UserRole } from '@restaurant-pos/shared-types';
+import { UserRole, Address, UserPreferences } from '@restaurant-pos/shared-types';
 
 export type UserDocument = User & Document;
 
-@Schema()
-export class Address {
-    @Prop({ required: true, enum: ['home', 'work', 'other'] })
-    type: string;
-
-    @Prop({ required: true })
-    street: string;
-
-    @Prop({ required: true })
-    city: string;
-
-    @Prop({ required: true })
-    state: string;
-
-    @Prop({ required: true })
-    zipCode: string;
-
-    @Prop({ required: true, default: 'US' })
-    country: string;
-
-    @Prop({ default: false })
-    isDefault: boolean;
-
-    @Prop()
-    instructions?: string;
-}
-
-@Schema()
-export class UserPreferences {
-    @Prop({
-        type: {
-            email: { type: Boolean, default: true },
-            sms: { type: Boolean, default: false },
-            orderUpdates: { type: Boolean, default: true },
-            promotions: { type: Boolean, default: true },
+@Schema({
+    timestamps: true,
+    toJSON: {
+        transform: function (doc, ret) {
+            delete ret.password;
+            delete ret.__v;
+            ret.id = ret._id;
+            delete ret._id;
+            return ret;
         }
-    })
-    notifications: {
-        email: boolean;
-        sms: boolean;
-        orderUpdates: boolean;
-        promotions: boolean;
-    };
-
-    @Prop({
-        type: {
-            vegetarian: Boolean,
-            vegan: Boolean,
-            glutenFree: Boolean,
-            dairyFree: Boolean,
-            nutFree: Boolean,
-            other: [String],
-        }
-    })
-    dietary?: {
-        vegetarian?: boolean;
-        vegan?: boolean;
-        glutenFree?: boolean;
-        dairyFree?: boolean;
-        nutFree?: boolean;
-        other?: string[];
-    };
-}
-
-@Schema({ timestamps: true })
+    }
+})
 export class User {
-    @Prop({ required: true, unique: true, lowercase: true, trim: true })
-    email: string;
-
-    @Prop({ required: true, select: false }) // Exclude by default
-    password: string;
-
     @Prop({ required: true, trim: true })
     firstName: string;
 
     @Prop({ required: true, trim: true })
     lastName: string;
 
-    @Prop({ sparse: true }) // Allow null but enforce uniqueness when present
-    phone?: string;
+    @Prop({
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true,
+        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    })
+    email: string;
 
-    @Prop({ required: true, enum: UserRole, default: UserRole.CUSTOMER })
+    @Prop({ required: true, minlength: 6 })
+    password: string;
+
+    @Prop({
+        required: true,
+        match: [/^\+?[\d\s\-\(\)]+$/, 'Please enter a valid phone number']
+    })
+    phone: string;
+
+    @Prop({
+        type: String,
+        enum: Object.values(UserRole),
+        default: UserRole.CUSTOMER
+    })
     role: UserRole;
 
     @Prop({ default: true })
     isActive: boolean;
 
     @Prop({ default: false })
-    emailVerified: boolean;
+    isEmailVerified: boolean;
 
     @Prop({ default: false })
-    phoneVerified: boolean;
+    isPhoneVerified: boolean;
+
+    @Prop()
+    emailVerificationToken?: string;
+
+    @Prop()
+    passwordResetToken?: string;
+
+    @Prop()
+    passwordResetExpires?: Date;
+
+    @Prop({ type: Date })
+    lastLoginAt?: Date;
 
     @Prop()
     avatar?: string;
 
-    @Prop({ type: [Address] })
-    addresses?: Address[];
+    // Customer-specific fields
+    @Prop({
+        type: [{
+            street: { type: String, required: true },
+            city: { type: String, required: true },
+            state: { type: String, required: true },
+            zipCode: { type: String, required: true },
+            isDefault: { type: Boolean, default: false },
+            label: { type: String, default: 'Home' }
+        }],
+        default: []
+    })
+    addresses: Array<{
+        street: string;
+        city: string;
+        state: string;
+        zipCode: string;
+        isDefault: boolean;
+        label: string;
+    }>;
 
-    @Prop({ type: UserPreferences })
-    preferences?: UserPreferences;
+    @Prop({
+        type: {
+            dietaryRestrictions: [{ type: String }],
+            favoriteCategories: [{ type: String }],
+            spiceLevel: { type: String, enum: ['mild', 'medium', 'hot', 'extra-hot'], default: 'medium' }
+        },
+        default: {}
+    })
+    preferences: {
+        dietaryRestrictions: string[];
+        favoriteCategories: string[];
+        spiceLevel: 'mild' | 'medium' | 'hot' | 'extra-hot';
+    };
+
+    // Staff-specific fields
+    @Prop()
+    employeeId?: string;
+
+    @Prop()
+    department?: string;
 
     @Prop({ type: Date })
-    lastLoginAt?: Date;
+    hireDate?: Date;
+
+    // Refresh token for JWT
+    @Prop()
+    refreshToken?: string;
+
+    // Computed field for full name
+    get fullName(): string {
+        return `${this.firstName} ${this.lastName}`;
+    }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
 // Create indexes
-UserSchema.index({ email: 1 });
+UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ phone: 1 });
 UserSchema.index({ role: 1 });
 UserSchema.index({ isActive: 1 });
+UserSchema.index({ employeeId: 1 }, { sparse: true });
