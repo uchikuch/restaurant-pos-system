@@ -1,7 +1,7 @@
 // apps/api/src/users/schemas/user.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { UserRole, Address, UserPreferences } from '@restaurant-pos/shared-types';
+import { UserRole } from '@restaurant-pos/shared-types';
 
 export type UserDocument = User & Document;
 

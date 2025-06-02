@@ -1,3 +1,4 @@
+// apps/api/src/auth/dto/auth-response.dto.ts
 import { UserRole } from '@restaurant-pos/shared-types';
 import { IsString } from 'class-validator';
 

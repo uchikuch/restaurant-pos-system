@@ -1,3 +1,4 @@
+// apps/api/src/users/dto/create-user.dto.ts
 import {
     IsEmail,
     IsString,
@@ -33,20 +34,61 @@ class AddressDto {
     label?: string;
 }
 
+class NotificationPreferencesDto {
+    @IsOptional()
+    @IsBoolean()
+    email?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    sms?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    orderUpdates?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    promotions?: boolean;
+}
+
+class DietaryPreferencesDto {
+    @IsOptional()
+    @IsBoolean()
+    vegetarian?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    vegan?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    glutenFree?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    dairyFree?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    nutFree?: boolean;
+
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    other?: string[];
+}
+
 class PreferencesDto {
     @IsOptional()
-    @IsArray()
-    @IsString({ each: true })
-    dietaryRestrictions?: string[];
+    @ValidateNested()
+    @Type(() => NotificationPreferencesDto)
+    notifications?: NotificationPreferencesDto;
 
     @IsOptional()
-    @IsArray()
-    @IsString({ each: true })
-    favoriteCategories?: string[];
-
-    @IsOptional()
-    @IsEnum(['mild', 'medium', 'hot', 'extra-hot'])
-    spiceLevel?: 'mild' | 'medium' | 'hot' | 'extra-hot';
+    @ValidateNested()
+    @Type(() => DietaryPreferencesDto)
+    dietary?: DietaryPreferencesDto;
 }
 
 export class CreateUserDto {

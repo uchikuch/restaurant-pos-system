@@ -1,3 +1,4 @@
+// apps/api/src/auth/dto/login.dto.ts
 import { IsEmail, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {

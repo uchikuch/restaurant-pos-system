@@ -1,7 +1,7 @@
+// apps/api/src/orders/schemas/order.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { OrderStatus, PaymentStatus } from '@restaurant-pos/shared-types';
-import { Address } from 'src/users/schemas/user.schema';
+import { OrderStatus, PaymentStatus, Address } from '@restaurant-pos/shared-types';
 
 export type OrderDocument = Order & Document;
 
@@ -128,7 +128,19 @@ export class Order {
     @Prop({ required: true, enum: ['pickup', 'delivery', 'dine-in'] })
     orderType: string;
 
-    @Prop({ type: Address })
+    @Prop({
+        type: {
+            _id: String,
+            type: { type: String, enum: ['home', 'work', 'other'] },
+            street: String,
+            city: String,
+            state: String,
+            zipCode: String,
+            country: String,
+            isDefault: Boolean,
+            instructions: String
+        }
+    })
     deliveryAddress?: Address;
 
     @Prop()
