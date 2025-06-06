@@ -17,7 +17,7 @@ export class LoyaltyTransaction {
     @Prop({ required: true })
     description: string;
 
-    @Prop()
+    @Prop({ required: false })
     expiresAt?: Date;
 
     @Prop({ required: true, default: Date.now })

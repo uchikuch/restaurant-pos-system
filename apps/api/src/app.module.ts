@@ -8,8 +8,11 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
-import { MenuItemsModule } from './menu-items/menu-items.module';  // ADD THIS
+import { MenuItemsModule } from './menu-items/menu-items.module';
+import { OrderModule } from './orders/order.module';
+import { CartModule } from './cart/cart.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { LoyaltyModule } from './loyalty/loyalty.module';
 
 @Module({
   imports: [
@@ -37,7 +40,16 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
     // Menu management modules
     CategoriesModule,
-    MenuItemsModule,  // ADD THIS
+    MenuItemsModule,
+
+    // Order processing module
+    OrderModule,
+
+    // Shopping cart module
+    CartModule,
+
+    // Loyalty program module
+    LoyaltyModule,
   ],
   controllers: [AppController],
   providers: [

@@ -169,6 +169,10 @@ export class Order {
 
     @Prop({ type: [OrderTimeline], default: [] })
     timeline: OrderTimeline[];
+
+    // Mongoose timestamps (automatically added by { timestamps: true })
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
@@ -183,7 +187,7 @@ OrderSchema.index({ orderNumber: 1 }, { unique: true });
 OrderSchema.index({ assignedToStaff: 1 });
 
 // Pre-save middleware to generate order number
-OrderSchema.pre('save', async function (next) {
+OrderSchema.pre('validate', function (next) {
     if (this.isNew && !this.orderNumber) {
         const date = new Date();
         const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
