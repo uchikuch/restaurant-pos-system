@@ -119,12 +119,6 @@ export class Order {
     @Prop({ required: true, enum: OrderStatus, default: OrderStatus.PENDING })
     status: OrderStatus;
 
-    @Prop({ required: true, enum: PaymentStatus, default: PaymentStatus.PENDING })
-    paymentStatus: PaymentStatus;
-
-    @Prop()
-    paymentIntentId?: string;
-
     @Prop({ required: true, enum: ['pickup', 'delivery', 'dine-in'] })
     orderType: string;
 
@@ -169,6 +163,25 @@ export class Order {
 
     @Prop({ type: [OrderTimeline], default: [] })
     timeline: OrderTimeline[];
+
+    // PAYMENT-RELATED FIELDS (ADD THESE)
+    @Prop({ required: true, enum: PaymentStatus, default: PaymentStatus.PENDING })
+    paymentStatus: PaymentStatus;
+
+    @Prop({ type: String })
+    paymentIntentId?: string;
+
+    @Prop({ type: Date })
+    paymentCompletedAt?: Date;
+
+    @Prop({ type: String })
+    paymentError?: string;
+
+    @Prop({ type: Number, default: 0 })
+    refundAmount?: number;
+
+    @Prop({ type: Date })
+    refundedAt?: Date;
 
     // Mongoose timestamps (automatically added by { timestamps: true })
     createdAt?: Date;

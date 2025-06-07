@@ -13,6 +13,7 @@ import { OrderModule } from './orders/order.module';
 import { CartModule } from './cart/cart.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { LoyaltyModule } from './loyalty/loyalty.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -50,6 +51,9 @@ import { LoyaltyModule } from './loyalty/loyalty.module';
 
     // Loyalty program module
     LoyaltyModule,
+
+    // Payment processing module
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [
