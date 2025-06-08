@@ -6,4 +6,4 @@ export * from './common.types';
 export * from './analytics.types';
 export * from './loyalty.types';
 export * from './payment.types';
-export * from './cart.types'; 
+export * from './cart.types';

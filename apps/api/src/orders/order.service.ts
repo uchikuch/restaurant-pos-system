@@ -9,6 +9,7 @@ import { OrderStatus, PaymentStatus, UserRole } from '@restaurant-pos/shared-typ
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CustomerOrderQueryDto, KitchenOrderQueryDto, OrderQueryDto } from './dto/order-query.dto';
 import { AssignStaffDto, OrderRatingDto, UpdateOrderDto, UpdateOrderStatusDto } from './dto/update-order.dto';
+import { RestaurantWebSocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class OrderService {
@@ -16,6 +17,7 @@ export class OrderService {
         @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
         @InjectModel(MenuItem.name) private menuItemModel: Model<MenuItemDocument>,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+        private wsGateway: RestaurantWebSocketGateway,
     ) { }
 
     async create(createOrderDto: CreateOrderDto, userId: string): Promise<OrderDocument> {
@@ -66,7 +68,13 @@ export class OrderService {
         // Update menu item sold counts
         await this.updateMenuItemSoldCounts(items);
 
-        return this.findById(savedOrder._id.toString());
+        // Get populated order for WebSocket notification
+        const populatedOrder = await this.findById(savedOrder._id.toString());
+
+        // Emit WebSocket event for new order
+        this.wsGateway.notifyOrderCreated(populatedOrder);
+
+        return populatedOrder;
     }
 
     async findAll(query: OrderQueryDto, userRole: UserRole, currentUserId?: string): Promise<{ orders: OrderDocument[], total: number, pages: number }> {
@@ -195,6 +203,7 @@ export class OrderService {
         // Validate status transition
         this.validateStatusTransition(orderDoc.status, updateStatusDto.status);
 
+        const previousStatus = orderDoc.status;
         orderDoc.status = updateStatusDto.status;
         orderDoc.timeline.push({
             status: updateStatusDto.status,
@@ -211,7 +220,17 @@ export class OrderService {
         }
 
         await orderDoc.save();
-        return this.findById(id);
+        const updatedOrder = await this.findById(id);
+
+        // Emit WebSocket events for status changes
+        this.wsGateway.notifyOrderStatusChanged(updatedOrder);
+
+        // Special notification when order is ready
+        if (updateStatusDto.status === OrderStatus.READY) {
+            this.wsGateway.notifyOrderReady(updatedOrder);
+        }
+
+        return updatedOrder;
     }
 
     async assignStaff(id: string, assignStaffDto: AssignStaffDto): Promise<OrderDocument> {
@@ -269,6 +288,9 @@ export class OrderService {
             throw new NotFoundException('Order not found');
         }
 
+        const previousStatus = orderDoc.status;
+        const previousPaymentStatus = orderDoc.paymentStatus;
+
         // Update allowed fields
         if (updateOrderDto.status !== undefined) {
             this.validateStatusTransition(orderDoc.status, updateOrderDto.status);
@@ -322,7 +344,24 @@ export class OrderService {
         }
 
         await orderDoc.save();
-        return this.findById(id);
+        const updatedOrder = await this.findById(id);
+
+        // Emit WebSocket events if status changed
+        if (updateOrderDto.status !== undefined && updateOrderDto.status !== previousStatus) {
+            this.wsGateway.notifyOrderStatusChanged(updatedOrder);
+
+            // Special notification when order is ready
+            if (updateOrderDto.status === OrderStatus.READY) {
+                this.wsGateway.notifyOrderReady(updatedOrder);
+            }
+        }
+
+        // Emit WebSocket event if payment status changed
+        if (updateOrderDto.paymentStatus === PaymentStatus.COMPLETED && previousPaymentStatus !== PaymentStatus.COMPLETED) {
+            this.wsGateway.notifyPaymentCompleted(updatedOrder);
+        }
+
+        return updatedOrder;
     }
 
     async remove(id: string): Promise<void> {

@@ -25,9 +25,10 @@ export class RegisterDto {
     @MinLength(6, { message: 'Password must be at least 6 characters long' })
     password: string;
 
+    @IsOptional()
     @IsString()
     @Matches(/^\+?[\d\s\-\(\)]+$/, { message: 'Please enter a valid phone number' })
-    phone: string;
+    phone?: string;
 
     @IsOptional()
     @IsEnum(UserRole)

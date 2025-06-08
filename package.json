@@ -9,16 +9,16 @@
     "apps/*",
     "packages/*"
   ],
- "scripts": {
+  "scripts": {
     "dev": "concurrently \"pnpm:dev:*\" --kill-others-on-fail --prefix-colors cyan,magenta,yellow,green",
     "dev:customer": "pnpm --filter customer-web dev",
-    "dev:kitchen": "pnpm --filter kitchen-dashboard dev", 
+    "dev:kitchen": "pnpm --filter kitchen-dashboard dev",
     "dev:admin": "pnpm --filter admin-panel dev",
     "dev:api": "pnpm --filter api start:direct",
     "build": "pnpm --filter=\"{packages/*}\" build && pnpm --filter=\"{apps/*}\" build",
     "build:customer": "pnpm --filter customer-web build",
     "build:kitchen": "pnpm --filter kitchen-dashboard build",
-    "build:admin": "pnpm --filter admin-panel build", 
+    "build:admin": "pnpm --filter admin-panel build",
     "build:api": "pnpm --filter api build",
     "build:types": "pnpm --filter @restaurant-pos/shared-types build",
     "start": "concurrently \"pnpm:start:*\" --kill-others-on-fail",
@@ -28,11 +28,12 @@
     "start:api": "pnpm --filter api start:direct"
   },
   "devDependencies": {
+    "@types/node": "^22.10.7",
     "concurrently": "^8.2.2",
     "prettier": "^3.4.2",
-    "typescript": "^5.7.3",
+    "socket.io-client": "^4.8.1",
     "ts-node": "^10.9.2",
-    "@types/node": "^22.10.7"
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=18.0.0",

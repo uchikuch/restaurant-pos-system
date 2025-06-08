@@ -21,6 +21,6 @@
       "@restaurant-pos/shared-types": ["../../packages/shared-types/src"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../test-websocket.js"],
   "exclude": ["node_modules", "dist", "test"]
 }

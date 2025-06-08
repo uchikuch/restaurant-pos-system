@@ -14,6 +14,7 @@ import { CartModule } from './cart/cart.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { LoyaltyModule } from './loyalty/loyalty.module';
 import { PaymentModule } from './payment/payment.module';
+import { WebSocketModule } from './websocket/websocket.module';
 
 @Module({
   imports: [
@@ -54,6 +55,9 @@ import { PaymentModule } from './payment/payment.module';
 
     // Payment processing module
     PaymentModule,
+
+    // WebSocket module for real-time updates
+    WebSocketModule,
   ],
   controllers: [AppController],
   providers: [

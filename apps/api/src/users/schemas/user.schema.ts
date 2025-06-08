@@ -37,10 +37,10 @@ export class User {
     password: string;
 
     @Prop({
-        required: true,
+        required: false,
         match: [/^\+?[\d\s\-\(\)]+$/, 'Please enter a valid phone number']
     })
-    phone: string;
+    phone?: string;
 
     @Prop({
         type: String,

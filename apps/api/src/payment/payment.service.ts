@@ -8,6 +8,7 @@ import { Order, OrderDocument } from '../orders/schemas/order.schema';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { CreatePaymentIntentDto, ConfirmPaymentDto } from './dto/create-payment-intent.dto';
 import { PaymentStatus, OrderStatus } from '@restaurant-pos/shared-types';
+import { RestaurantWebSocketGateway } from '../websocket/websocket.gateway';
 
 @Injectable()
 export class PaymentService {
@@ -17,6 +18,7 @@ export class PaymentService {
         private configService: ConfigService,
         @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
+        private wsGateway: RestaurantWebSocketGateway,
     ) {
         this.stripe = new Stripe(this.configService.get('STRIPE_SECRET_KEY'), {
             apiVersion: '2025-05-28.basil',
@@ -236,8 +238,15 @@ export class PaymentService {
 
             console.log(`Order ${order.orderNumber} payment confirmed`);
 
-            // Here you would emit a WebSocket event for real-time updates
-            // this.eventEmitter.emit('order.confirmed', { orderId, orderNumber: order.orderNumber });
+            // Get the updated order with populated fields
+            const updatedOrder = await this.orderModel
+                .findById(orderId)
+                .populate('userId', 'firstName lastName email phone')
+                .exec();
+
+            // Emit WebSocket events for payment completion
+            this.wsGateway.notifyPaymentCompleted(updatedOrder);
+            this.wsGateway.notifyOrderStatusChanged(updatedOrder);
         }
     }
 
@@ -253,6 +262,30 @@ export class PaymentService {
         });
 
         console.log(`Payment failed for order ${orderId}`);
+
+        // Get the updated order
+        const order = await this.orderModel
+            .findById(orderId)
+            .populate('userId', 'firstName lastName email phone')
+            .exec();
+
+        // Emit WebSocket event for payment failure
+        if (order) {
+            this.wsGateway.emitToOrder(orderId, 'payment:failed', {
+                orderId: order._id,
+                orderNumber: order.orderNumber,
+                error: paymentIntent.last_payment_error?.message,
+            });
+
+            // Notify the customer
+            if (order.userId) {
+                this.wsGateway.emitToUser(order.userId._id.toString(), 'payment:failed', {
+                    orderId: order._id,
+                    orderNumber: order.orderNumber,
+                    error: paymentIntent.last_payment_error?.message,
+                });
+            }
+        }
     }
 
     private async handleRefund(charge: Stripe.Charge) {
@@ -283,6 +316,29 @@ export class PaymentService {
         });
 
         console.log(`Order ${order.orderNumber} refunded: $${refundAmount}`);
+
+        // Get the updated order with populated fields
+        const updatedOrder = await this.orderModel
+            .findById(order._id)
+            .populate('userId', 'firstName lastName email phone')
+            .exec();
+
+        // Emit WebSocket event for refund
+        this.wsGateway.emitToOrder(order._id.toString(), 'payment:refunded', {
+            orderId: order._id,
+            orderNumber: order.orderNumber,
+            refundAmount: refundAmount,
+        });
+
+        // Notify the customer
+        if (updatedOrder.userId) {
+            this.wsGateway.emitToUser(updatedOrder.userId._id.toString(), 'payment:refunded', {
+                orderId: order._id,
+                orderNumber: order.orderNumber,
+                refundAmount: refundAmount,
+                message: `Your order ${order.orderNumber} has been refunded $${refundAmount.toFixed(2)}`,
+            });
+        }
     }
 
     async createRefund(orderId: string, amount?: number, reason?: string) {

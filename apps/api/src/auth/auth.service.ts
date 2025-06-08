@@ -48,6 +48,7 @@ export class AuthService {
             if (error instanceof ConflictException) {
                 throw error;
             }
+            console.error('Registration error:', error);
             throw new BadRequestException('Registration failed');
         }
     }
