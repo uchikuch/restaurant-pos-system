@@ -15,7 +15,7 @@ export interface MenuItem {
     description: string;
     categoryId: string;
     category?: Category; // Populated field
-    price: number;
+    basePrice: number;
     images: string[];
     isAvailable: boolean;
     isPopular: boolean;

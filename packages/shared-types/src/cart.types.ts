@@ -1,5 +1,7 @@
 // packages/shared-types/src/cart.types.ts
 import { MenuItem } from "./menu.types";
+import { OrderType } from "./common.types";
+
 
 export interface Cart {
     _id: string;
@@ -11,7 +13,7 @@ export interface Cart {
     deliveryFee: number;
     discount: number;
     total: number;
-    orderType: 'pickup' | 'delivery' | 'dine-in';
+    orderType: OrderType;
     deliveryAddress?: {
         street: string;
         city: string;

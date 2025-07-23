@@ -47,3 +47,5 @@ export enum PaymentStatus {
     REFUNDED = 'refunded',
     PARTIALLY_REFUNDED = 'partially_refunded'
 }
+
+export type OrderType = 'pickup' | 'delivery' | 'dine-in';

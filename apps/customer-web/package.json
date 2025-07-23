@@ -13,20 +13,29 @@
     "clean": "rm -rf .next out"
   },
   "dependencies": {
+    "@restaurant-pos/shared-types": "workspace:*",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.3.1",
+    "axios": "^1.9.0",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.513.0",
+    "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.2",
-    "@restaurant-pos/shared-types": "workspace:*"
+    "react-hot-toast": "^2.5.2",
+    "socket.io-client": "^4.8.1",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "@types/socket.io-client": "^3.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

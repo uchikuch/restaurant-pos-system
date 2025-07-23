@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentStatus } from "./common.types";
+import { OrderStatus, PaymentStatus, OrderType } from "./common.types";
 import { MenuItem } from "./menu.types";
 import { Address, User } from "./user.types";
 
@@ -17,7 +17,7 @@ export interface Order {
     status: OrderStatus;
     paymentStatus: PaymentStatus;
     paymentIntentId?: string; // Stripe payment intent ID
-    orderType: 'pickup' | 'delivery' | 'dine-in';
+    orderType: OrderType;
     deliveryAddress?: Address;
     specialInstructions?: string;
     estimatedPrepTime: number; // in minutes
